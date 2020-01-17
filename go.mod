@@ -13,7 +13,7 @@ require (
 	github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/sergi/go-diff v1.0.0
 	github.com/src-d/gcfg v1.4.0
 	github.com/stretchr/objx v0.2.0 // indirect

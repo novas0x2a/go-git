@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 
+	perr "github.com/pkg/errors"
 	"gopkg.in/src-d/go-billy.v4/util"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
@@ -36,7 +37,7 @@ func (w *Worktree) Status() (Status, error) {
 
 	ref, err := w.r.Head()
 	if err != nil && err != plumbing.ErrReferenceNotFound {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to get repo head")
 	}
 
 	if err == nil {
@@ -51,13 +52,13 @@ func (w *Worktree) status(commit plumbing.Hash) (Status, error) {
 
 	left, err := w.diffCommitWithStaging(commit, false)
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to diff commit with staging")
 	}
 
 	for _, ch := range left {
 		a, err := ch.Action()
 		if err != nil {
-			return nil, err
+			return nil, perr.Wrap(err, "left action error")
 		}
 
 		fs := s.File(nameFromAction(&ch))
@@ -75,13 +76,13 @@ func (w *Worktree) status(commit plumbing.Hash) (Status, error) {
 
 	right, err := w.diffStagingWithWorktree(false)
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to diff staging with worktree")
 	}
 
 	for _, ch := range right {
 		a, err := ch.Action()
 		if err != nil {
-			return nil, err
+			return nil, perr.Wrap(err, "right action error")
 		}
 
 		fs := s.File(nameFromAction(&ch))
