@@ -252,6 +252,7 @@ import (
 	"errors"
 	"fmt"
 
+	perr "github.com/pkg/errors"
 	"gopkg.in/src-d/go-git.v4/utils/merkletrie/noder"
 )
 
@@ -276,7 +277,7 @@ func DiffTreeContext(ctx context.Context, fromTree, toTree noder.Noder,
 
 	ii, err := newDoubleIter(fromTree, toTree, hashEqual)
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to get double-iter")
 	}
 
 	for {
@@ -294,21 +295,21 @@ func DiffTreeContext(ctx context.Context, fromTree, toTree noder.Noder,
 			return ret, nil
 		case onlyFromRemains:
 			if err = ret.AddRecursiveDelete(from); err != nil {
-				return nil, err
+				return nil, perr.Wrapf(err, "add-recursive-delete %v", from)
 			}
 			if err = ii.nextFrom(); err != nil {
-				return nil, err
+				return nil, perr.Wrapf(err, "next-from %v", ii)
 			}
 		case onlyToRemains:
 			if err = ret.AddRecursiveInsert(to); err != nil {
-				return nil, err
+				return nil, perr.Wrapf(err, "add-recursive-insert %v", to)
 			}
 			if err = ii.nextTo(); err != nil {
-				return nil, err
+				return nil, perr.Wrapf(err, "next-to %v", ii)
 			}
 		case bothHaveNodes:
 			if err = diffNodes(&ret, ii); err != nil {
-				return nil, err
+				return nil, perr.Wrapf(err, "diff-nodes %v", ii)
 			}
 		default:
 			panic(fmt.Sprintf("unknown remaining value: %d", r))

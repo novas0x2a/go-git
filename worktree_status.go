@@ -116,13 +116,13 @@ func nameFromAction(ch *merkletrie.Change) string {
 func (w *Worktree) diffStagingWithWorktree(reverse bool) (merkletrie.Changes, error) {
 	idx, err := w.r.Storer.Index()
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to get index from storer")
 	}
 
 	from := mindex.NewRootNode(idx)
 	submodules, err := w.getSubmodulesStatus()
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to get submodule status")
 	}
 
 	to := filesystem.NewRootNode(w.Filesystem, submodules)
@@ -135,7 +135,7 @@ func (w *Worktree) diffStagingWithWorktree(reverse bool) (merkletrie.Changes, er
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to diff tree")
 	}
 
 	return w.excludeIgnoredChanges(c), nil
@@ -207,12 +207,12 @@ func (w *Worktree) diffCommitWithStaging(commit plumbing.Hash, reverse bool) (me
 	if !commit.IsZero() {
 		c, err := w.r.CommitObject(commit)
 		if err != nil {
-			return nil, err
+			return nil, perr.Wrapf(err, "failed to get commit object %s", commit)
 		}
 
 		t, err = c.Tree()
 		if err != nil {
-			return nil, err
+			return nil, perr.Wrapf(err, "failed to get tree for commit object %s", commit)
 		}
 	}
 
@@ -227,7 +227,7 @@ func (w *Worktree) diffTreeWithStaging(t *object.Tree, reverse bool) (merkletrie
 
 	idx, err := w.r.Storer.Index()
 	if err != nil {
-		return nil, err
+		return nil, perr.Wrap(err, "failed to get index from store")
 	}
 
 	to := mindex.NewRootNode(idx)
